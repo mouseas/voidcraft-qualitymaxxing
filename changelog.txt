@@ -1,3 +1,9 @@
+Version: 0.1.1
+Date: 2025-04-25
+  Changes:
+	- Added biter and pentapod eggs
+	- Matched recipe colors from Voidcraft's conjuring recipes for the same materials
+---------------------------------------------------------------------------------------------------
 Version: 0.1.0
 Date: 2025-04-25
   Changes:

@@ -114,18 +114,18 @@ end
 
 
 local added_recipes = {
-	prismite_oreconv({product="uranium-ore"}, "vf", {0.0, 1.0, 0.0}, {2, 4}),
-	prismite_oreconv({product="tungsten-ore", secondary_ingr="tungsten-plate", subgroup="vulcanus-processes"}, "vq-aa", {0.65, 0.4, 0.8125}),
-	prismite_oreconv({product="holmium-ore", secondary_ingr="holmium-plate", subgroup="fulgora-processes"}, "vq-ab", {0.9, 0.4, 0.4}),
-	prismite_oreconv({product={name="jellynut", type="item", amount_min=45, amount_max=55}, secondary_ingr="jellynut-seed"}, "vq-ac", {0.1, 0.1, 0.1}),
-	prismite_oreconv({product={name="yumako", type="item", amount_min=45, amount_max=55}, secondary_ingr="yumako-seed"}, "vq-ad", {0.92, 0.8, 0.6}),
-	--prismite_oreconv({product="lithium", secondary_ingr="lithium-plate"}, "vq-ae", {0.48, 0.4, 0.1}, nil), -- not needed: lithium is made with holmium plates
-	prismite_oreconv({product="sulfur"}, "vq-ba", {1.0, 1.0, 0.0}),
-	prismite_oreconv({product="calcite", subgroup="vulcanus-processes"}, "vq-bb", {1.0, 1.0, 1.0}),
+	prismite_oreconv({product="uranium-ore"}, "vf", {0.32, 0.86, 0.2}, {2, 4}),
+	prismite_oreconv({product="tungsten-ore", secondary_ingr="tungsten-plate", subgroup="vulcanus-processes"}, "vq-aa", {0.38, 0.32, 0.58}),
+	prismite_oreconv({product="holmium-ore", secondary_ingr="holmium-plate", subgroup="fulgora-processes"}, "vq-ab", {0.68, 0.28, 0.375}),
+	prismite_oreconv({product={name="jellynut", type="item", amount_min=45, amount_max=55}, secondary_ingr="jellynut-seed"}, "vq-ac", {0.75, 0.46, 0.6}),
+	prismite_oreconv({product={name="yumako", type="item", amount_min=45, amount_max=55}, secondary_ingr="yumako-seed"}, "vq-ad", {0.8, 0.12, 0.25}),
+	prismite_oreconv({product="lithium", secondary_ingr="lithium-plate"}, "vq-ae", {0.66, 0.68, 0.58}), -- not really needed: lithium is made with holmium plates
+	prismite_oreconv({product="sulfur"}, "vq-ba", {0.82, 0.8, 0.25}),
+	prismite_oreconv({product="calcite", subgroup="vulcanus-processes"}, "vq-bb", {0.78, 0.74, 0.74}),
 	prismite_oreconv({product={name="raw-fish", type="item", amount=1}, secondary_ingr="spoilage"}, "vq-bc", {0.2, 1.0, 0.4}),
-	-- TODO biter egg
-	-- TODO pentapod egg
-	prismite_oreconv({product={name="orichalcum", type="item", amount_min=2, amount_max=5}, main_ingr="prismite-crystal", secondary_ingr="orichalcum", tech="s6x-void-orichalcum"}, "vq-bf", {0.0, 0.9, 0.0}),
+	prismite_oreconv({product="biter-egg", main_ingr={type="item", name="orichalcum", amount=5}}, "vq-bd", {0.78, 0.625, 0.48}),
+	prismite_oreconv({product="pentapod-egg", main_ingr={type="item", name="orichalcum", amount=5}}, "vq-be", {0.5, 0.9, 0.52}),
+	prismite_oreconv({product={name="orichalcum", type="item", amount_min=2, amount_max=5}, main_ingr="prismite-crystal", secondary_ingr="orichalcum", tech="s6x-void-orichalcum"}, "vq-bf", {0.36, 0.52, 0.2}),
 }
 
 -- cross-mod compatibility
