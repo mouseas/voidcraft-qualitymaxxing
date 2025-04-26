@@ -123,8 +123,8 @@ local added_recipes = {
 	prismite_oreconv({product="sulfur"}, "vq-ba", {0.82, 0.8, 0.25}),
 	prismite_oreconv({product="calcite", subgroup="vulcanus-processes"}, "vq-bb", {0.78, 0.74, 0.74}),
 	prismite_oreconv({product={name="raw-fish", type="item", amount=1}, secondary_ingr="spoilage"}, "vq-bc", {0.2, 1.0, 0.4}),
-	prismite_oreconv({product="biter-egg", main_ingr={type="item", name="orichalcum", amount=5}}, "vq-bd", {0.78, 0.625, 0.48}),
-	prismite_oreconv({product="pentapod-egg", main_ingr={type="item", name="orichalcum", amount=5}}, "vq-be", {0.5, 0.9, 0.52}),
+	prismite_oreconv({product={name="biter-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5}, tech="s6x-void-biocrafting"}, "vq-bd", {0.78, 0.625, 0.48}),
+	prismite_oreconv({product={name="pentapod-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5}, tech="s6x-void-biocrafting"}, "vq-be", {0.5, 0.9, 0.52}),
 	prismite_oreconv({product={name="orichalcum", type="item", amount_min=2, amount_max=5}, main_ingr="prismite-crystal", secondary_ingr="orichalcum", tech="s6x-void-orichalcum"}, "vq-bf", {0.36, 0.52, 0.2}),
 }
 
