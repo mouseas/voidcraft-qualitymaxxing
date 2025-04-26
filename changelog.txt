@@ -1,0 +1,6 @@
+Version: 0.1.0
+Date: 2025-04-25
+  Changes:
+	- Added prismite-based Space Age material production recipes.
+	- Added cross-compatibility recipes for Castra, Maraxsis, Tenebris Prime, and Metal & Stars, which are active if Voidcraft: Planetary Compatibility mod is also installed.
+---------------------------------------------------------------------------------------------------
