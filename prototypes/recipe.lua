@@ -168,7 +168,7 @@ if mods["voidcraft-planetary-compatibility"] then
 	if mods["tenebris-prime"] then
 		table.insert(added_recipes, prismite_oreconv({product="tenecap", tech="mouseas-void-tenebris-prime", subgroup="vc-qm-bio"}, "vq-tp-a", {0.7, 0.45, 0.3}))
 		table.insert(added_recipes, prismite_oreconv({product="lucifunnel", tech="mouseas-void-tenebris-prime", subgroup="vc-qm-bio"}, "vq-tp-b", {0.4, 0.8, 0.7}))
-		table.insert(added_recipes, prismite_oreconv({product="quartz-ore", tech="mouseas-void-tenebris-prime", subgroup="vc-qm-bio"}, "vq-tp-c", {0.95, 0.9, 0.9}))
+		table.insert(added_recipes, prismite_oreconv({product="quartz-ore", tech="mouseas-void-tenebris-prime", subgroup="vc-qm-ores-minerals"}, "vq-tp-c", {0.95, 0.9, 0.9}))
 	end
 	
 	if mods["metal-and-stars"] then
