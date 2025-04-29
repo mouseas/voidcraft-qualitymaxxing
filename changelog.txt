@@ -1,3 +1,9 @@
+Version: 0.1.2
+Date: 2025-04-28
+  Changes:
+	- Added cross-compatibility recipes for Moshine
+	- Combined most recipes into existing subgroups to reduce category spam
+---------------------------------------------------------------------------------------------------
 Version: 0.1.1
 Date: 2025-04-25
   Changes:
