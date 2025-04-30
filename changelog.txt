@@ -1,18 +1,29 @@
+---------------------------------------------------------------------------------------------------
+Version: 0.1.3
+Date: 2025-04-30
+  Features:
+    - Added cross-compatibility recipe for Secretas & Frozeta
+  Changes:
+    - Moved recipes for Space Age materials from the Prismaticonversion tech to that planet's corresponding voidcrafting tech, and the recipe for sulfur to the Brimstone tech
+    - Removed several redundant dependencies; if VC:Planetary Compatibility is installed then it goes before VC:Qualitymaxxing anyway, and if it's not then none of the other planets' materials get recipes.
+---------------------------------------------------------------------------------------------------
 Version: 0.1.2
 Date: 2025-04-28
+  Features:
+    - Added cross-compatibility recipes for Moshine
   Changes:
-	- Added cross-compatibility recipes for Moshine
-	- Combined most recipes into existing subgroups to reduce category spam
+    - Combined most recipes into existing subgroups to reduce category spam
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.1
 Date: 2025-04-25
+  Features:
+    - Added biter and pentapod eggs
   Changes:
-	- Added biter and pentapod eggs
-	- Matched recipe colors from Voidcraft's conjuring recipes for the same materials
+    - Matched recipe colors from Voidcraft's conjuring recipes for the same materials
 ---------------------------------------------------------------------------------------------------
 Version: 0.1.0
 Date: 2025-04-25
-  Changes:
-	- Added prismite-based Space Age material production recipes.
-	- Added cross-compatibility recipes for Castra, Maraxsis, Tenebris Prime, and Metal & Stars, which are active if Voidcraft: Planetary Compatibility mod is also installed.
+  Features:
+    - Added prismite-based Space Age material production recipes.
+    - Added cross-compatibility recipes for Castra, Maraxsis, Tenebris Prime, and Metal & Stars, which are active if Voidcraft: Planetary Compatibility mod is also installed.
 ---------------------------------------------------------------------------------------------------

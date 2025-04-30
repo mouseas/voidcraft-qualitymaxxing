@@ -136,13 +136,13 @@ data:extend({
 
 local added_recipes = {
 	prismite_oreconv({product="uranium-ore"}, "vf", {0.32, 0.86, 0.2}, {2, 4}),
-	prismite_oreconv({product="tungsten-ore", secondary_ingr="tungsten-plate", subgroup="vulcanus-processes"}, "vq-aa", {0.38, 0.32, 0.58}),
-	prismite_oreconv({product="holmium-ore", secondary_ingr="holmium-plate", subgroup="fulgora-processes"}, "vq-ab", {0.68, 0.28, 0.375}),
-	prismite_oreconv({product={name="jellynut", type="item", amount_min=45, amount_max=55}, secondary_ingr="jellynut-seed", subgroup="vc-qm-bio"}, "vq-ac", {0.75, 0.46, 0.6}),
-	prismite_oreconv({product={name="yumako", type="item", amount_min=45, amount_max=55}, secondary_ingr="yumako-seed", subgroup="vc-qm-bio"}, "vq-ad", {0.8, 0.12, 0.25}),
-	prismite_oreconv({product="lithium", secondary_ingr="lithium-plate", subgroup="vc-qm-ores-minerals"}, "vq-ae", {0.66, 0.68, 0.58}), -- not really needed: lithium is made with holmium plates
-	prismite_oreconv({product="sulfur", subgroup="vc-qm-other"}, "vq-ba", {0.82, 0.8, 0.25}),
-	prismite_oreconv({product="calcite", subgroup="vulcanus-processes"}, "vq-bb", {0.78, 0.74, 0.74}),
+	prismite_oreconv({product="tungsten-ore", secondary_ingr="tungsten-plate", tech="s6x-void-vulcanus", subgroup="vulcanus-processes"}, "vq-aa", {0.38, 0.32, 0.58}),
+	prismite_oreconv({product="holmium-ore", secondary_ingr="holmium-plate", tech="s6x-void-fulgora", subgroup="fulgora-processes"}, "vq-ab", {0.68, 0.28, 0.375}),
+	prismite_oreconv({product={name="jellynut", type="item", amount_min=45, amount_max=55}, secondary_ingr="jellynut-seed", tech="s6x-void-gleba", subgroup="vc-qm-bio"}, "vq-ac", {0.75, 0.46, 0.6}),
+	prismite_oreconv({product={name="yumako", type="item", amount_min=45, amount_max=55}, secondary_ingr="yumako-seed", tech="s6x-void-gleba", subgroup="vc-qm-bio"}, "vq-ad", {0.8, 0.12, 0.25}),
+	prismite_oreconv({product="lithium", secondary_ingr="lithium-plate", tech="s6x-void-aquilo", subgroup="vc-qm-ores-minerals"}, "vq-ae", {0.66, 0.68, 0.58}), -- not really needed: lithium is made with holmium plates
+	prismite_oreconv({product="sulfur", tech="s6x-void-sulfur", subgroup="vc-qm-other"}, "vq-ba", {0.82, 0.8, 0.25}),
+	prismite_oreconv({product="calcite", tech="s6x-void-vulcanus", subgroup="vulcanus-processes"}, "vq-bb", {0.78, 0.74, 0.74}),
 	prismite_oreconv({product={name="raw-fish", type="item", amount=1}, secondary_ingr="spoilage", subgroup="vc-qm-bio"}, "vq-bc", {0.2, 1.0, 0.4}),
 	prismite_oreconv({product={name="biter-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5, subgroup="vc-qm-bio"}, tech="s6x-void-biocrafting"}, "vq-bd", {0.78, 0.625, 0.48}),
 	prismite_oreconv({product={name="pentapod-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5, subgroup="vc-qm-bio"}, tech="s6x-void-biocrafting"}, "vq-be", {0.5, 0.9, 0.52}),
@@ -208,6 +208,19 @@ if mods["voidcraft-planetary-compatibility"] then
 			table.insert(added_recipes, prismite_oreconv({product="sand", tech="mouseas-void-moshine", subgroup="vc-qm-ores-minerals"}, "vq-mos-a", {0.78, 0.74, 0.74}))
 		end
 		table.insert(added_recipes, prismite_oreconv({product="neodymium", tech="mouseas-void-moshine", subgroup="vc-qm-ores-minerals"}, "vq-mos-b", {0.9, 0.9, 0.9}))
+	end
+	
+	if mods["secretas"] then
+		-- gold ore is added by both mods, let's only add the recipe once and let both mods' voidcraft techs unlock it.
+		if mods["metal-and-stars"] then
+			table.insert(data.raw.technology["mouseas-void-frozeta"].effects, { type="unlock-recipe", recipe="mouseas-prismiteconv-gold-ore"})
+		else
+			table.insert(added_recipes, prismite_oreconv({product="gold-ore", tech="mouseas-void-frozeta", subgroup="vc-qm-ores-minerals"}, "vq-sec-a", {0.9, 0.8, 0.0}))
+		end
+	end
+	
+	if mods["Cerys-Moon-of-Fulgora"] then
+		table.insert(data.raw.technology["cerys-fulgoran-cryogenics"].effects, { type="unlock-recipe", recipe="mouseas-prismiteconv-lithium" })
 	end
 end
 
