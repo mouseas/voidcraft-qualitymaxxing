@@ -1,4 +1,11 @@
 ---------------------------------------------------------------------------------------------------
+Version: 0.1.4
+Date: 2025-04-30
+  Features:
+    - Added Prismaticonversion recipes for ice and solid fuel.
+    - Added a recipe for void rocket parts so you can make quality Celestial science packs.
+    - Added a Prismelting recipe for holmium plates from ore
+---------------------------------------------------------------------------------------------------
 Version: 0.1.3
 Date: 2025-04-30
   Features:

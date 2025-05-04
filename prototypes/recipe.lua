@@ -10,14 +10,18 @@ local function find_ref(name, category)
 	return result
 end
 
-local function prismite_oreconv(xinfo, order, tinttbl)
-	-- copied wholesale from voidcraft.prototypes.prismite-oreconv
-	local recipe_tint = {
+local function calculate_recipe_tint(tinttbl)
+	return {
 		primary = {r = tinttbl[1], g = tinttbl[2]*0.96, b = tinttbl[3], a = 1.000},
 		secondary = {r = 0.5*(tinttbl[1]+1), g = tinttbl[2]*0.8, b = 0.5*(tinttbl[3]+1), a = 1.000},
 		tertiary = {r = 0.72, g = 0.65, b = 0.4, a = 1.000}, 
 		quaternary = {r = 0.84, g = 0.15, b = 0.62, a = 1.000}, 
 	}
+end
+
+local function prismite_oreconv(xinfo, order, tinttbl)
+	-- copied wholesale from voidcraft.prototypes.prismite-oreconv
+	local recipe_tint = calculate_recipe_tint(tinttbl)
 	
 	if not xinfo then xinfo = {} end
 	
@@ -147,7 +151,77 @@ local added_recipes = {
 	prismite_oreconv({product={name="biter-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5, subgroup="vc-qm-bio"}, tech="s6x-void-biocrafting"}, "vq-bd", {0.78, 0.625, 0.48}),
 	prismite_oreconv({product={name="pentapod-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5, subgroup="vc-qm-bio"}, tech="s6x-void-biocrafting"}, "vq-be", {0.5, 0.9, 0.52}),
 	prismite_oreconv({product={name="orichalcum", type="item", amount_min=2, amount_max=5}, main_ingr="prismite-crystal", secondary_ingr="orichalcum", tech="s6x-void-orichalcum"}, "vq-bf", {0.36, 0.52, 0.2}),
+	prismite_oreconv({product="solid-fuel", subgroup="vc-qm-other"}, "vq-bf", {0.5, 0.5, 0.5}),
+	prismite_oreconv({product="ice", subgroup="vc-qm-other"}, "vq-bg", {0.62, 0.62, 0.8}),
 }
+
+-- recipe to make void rocket parts
+table.insert(added_recipes, {
+	type = "recipe",
+	name = "mouseas-void-rocket-part",
+	localised_name = { "item-name.void-rocket-part" },
+	energy_required = 10,
+	enabled = false,
+	category = "crafting-with-fluid",
+	icon = data.raw.item["void-rocket-part"].icon,
+	subgroup = "intermediate-product",
+	order = "vc-qm-a",
+	main_product = "void-rocket-part",
+	ingredients = {
+		{type="item", name="rocket-fuel", amount=1},
+		{type="item", name="processing-unit", amount=1},
+		{type="item", name="low-density-structure", amount=1},
+		{type="fluid", name="void-flux", amount=20}
+	},
+	results = {
+		{type="item", name="void-rocket-part", amount=1}
+	},
+	
+	show_amount_in_title = false,
+	allow_decomposition = false,
+	auto_recycle = false,
+	allow_productivity = true,
+	allow_quality = true,
+	always_show_made_in = true,
+	
+	crafting_machine_tint = calculate_recipe_tint({0.8, 0.3, 0.85}),
+})
+table.insert(data.raw.technology["s6x-void-rocket"].effects, { type = "unlock-recipe", recipe = "mouseas-void-rocket-part" })
+
+-- recipe to make holmium plates from ore
+table.insert(added_recipes, {
+	type = "recipe",
+	name = "mouseas-smelt-holmium-plate",
+	localised_name = { "item-name.holmium-plate" },
+	energy_required = 2,
+	enabled = false,
+	category = "chemistry",
+	icons = {
+		{ icon = "__space-age__/graphics/icons/holmium-plate.png", icon_size = 64 },
+		{ icon = "__Voidcraft__/graphics/icons/prismite-refined.png", icon_size = 64, scale = 0.25, shift = {-8, -8} }
+	},
+	subgroup = "prismite-smelting",
+	order = "zzz-vc-qm-a",
+	main_product = "holmium-plate",
+	ingredients = {
+		{type="item", name="prismite-refined", amount=1},
+		{type="item", name="holmium-ore", amount=5},
+		{type = "fluid", name = "void-flux", amount = 20},
+	},
+	results = {
+		{type="item", name="holmium-plate", amount=5}
+	},
+	
+	show_amount_in_title = false,
+	allow_decomposition = false,
+	auto_recycle = false,
+	allow_productivity = true,
+	allow_quality = true,
+	always_show_made_in = true,
+	
+	crafting_machine_tint = calculate_recipe_tint({0.78, 0.6, 0.64}),
+})
+table.insert(data.raw.technology["s6x-void-fulgora"].effects, { type = "unlock-recipe", recipe = "mouseas-smelt-holmium-plate" })
 
 -- cross-mod compatibility
 if mods["voidcraft-planetary-compatibility"] then
