@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: 2025-05-05
+  Features:
+    - Added recipe for Promethium asteroid chunk. To get more than you put in, you'll need a productivity bonus.
+---------------------------------------------------------------------------------------------------
 Version: 0.1.4
 Date: 2025-05-04
   Features:

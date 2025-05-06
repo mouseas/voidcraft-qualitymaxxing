@@ -148,12 +148,30 @@ local added_recipes = {
 	prismite_oreconv({product="sulfur", tech="s6x-void-sulfur", subgroup="vc-qm-other"}, "vq-ba", {0.82, 0.8, 0.25}),
 	prismite_oreconv({product="calcite", tech="s6x-void-vulcanus", subgroup="vulcanus-processes"}, "vq-bb", {0.78, 0.74, 0.74}),
 	prismite_oreconv({product={name="raw-fish", type="item", amount=1}, secondary_ingr="spoilage", subgroup="vc-qm-bio"}, "vq-bc", {0.2, 1.0, 0.4}),
-	prismite_oreconv({product={name="biter-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5, subgroup="vc-qm-bio"}, tech="s6x-void-biocrafting"}, "vq-bd", {0.78, 0.625, 0.48}),
-	prismite_oreconv({product={name="pentapod-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5, subgroup="vc-qm-bio"}, tech="s6x-void-biocrafting"}, "vq-be", {0.5, 0.9, 0.52}),
+	prismite_oreconv({product={name="biter-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5}, subgroup="vc-qm-bio", tech="s6x-void-biocrafting"}, "vq-bd", {0.78, 0.625, 0.48}),
+	prismite_oreconv({product={name="pentapod-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5}, subgroup="vc-qm-bio", tech="s6x-void-biocrafting"}, "vq-be", {0.5, 0.9, 0.52}),
 	prismite_oreconv({product={name="orichalcum", type="item", amount_min=2, amount_max=5}, main_ingr="prismite-crystal", secondary_ingr="orichalcum", tech="s6x-void-orichalcum"}, "vq-bf", {0.36, 0.52, 0.2}),
 	prismite_oreconv({product="solid-fuel", subgroup="vc-qm-other"}, "vq-bf", {0.5, 0.5, 0.5}),
 	prismite_oreconv({product="ice", subgroup="vc-qm-other"}, "vq-bg", {0.62, 0.62, 0.8}),
 }
+
+-- recipe to make promethium chunks. To get more out than you put in, you'll need productivity bonuses.
+local promethium_chunk_recipe = prismite_oreconv({
+		product={name="promethium-asteroid-chunk", type="item", amount=1},
+		subgroup="space-processing",
+		main_ingr={name="promethium-asteroid-chunk", type="item", amount=1},
+		secondary_ingr="orichalcum",
+		tech="promethium-science-pack"
+	}, "vc-qm-a", {1.0, 0.2, 0.2})
+if not (mods["VoidBlock"] and settings.startup["s6x-location-unlock"].value) then
+	-- unless playing Void Block with surface conditions disabled, make sure this recipe is only allowed where promethium science packs are crafted.
+	local promethium_science_recipe = data.raw.recipe["promethium-science-pack"]
+	promethium_chunk_recipe.surface_conditions = {}
+	for k, v in pairs(promethium_science_recipe.surface_conditions) do
+		table.insert(promethium_chunk_recipe.surface_conditions, {property=v.property, max=v.max, min=v.min})
+	end
+end
+table.insert(added_recipes, promethium_chunk_recipe)
 
 -- recipe to make void rocket parts
 table.insert(added_recipes, {
