@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.1
+Date: 2025-05-09
+  Changes:
+    - Removed unnecessary minimum versions from dependencies.
+    - Added "quality" as a dependency because this entire mod is centered around quality.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.0
 Date: 2025-05-05
   Features:

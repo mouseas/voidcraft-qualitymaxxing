@@ -1,13 +1,14 @@
 {
 	"name": "voidcraft-qualitymaxxing",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"title": "Voidcraft: Quality Maxxing",
 	"author": "Mouseas",
 	"description": "Adds recipies to Voidcraft that makes it easier to produce quality materials.",
 	"homepage": "https://github.com/mouseas/voidcraft-qualitymaxxing",
 	"dependencies": [
-		"base >= 2.0.28",
-        "space-age >= 2.0.28",
+		"base",
+        "space-age",
+		"quality",
 		"Voidcraft >= 1.4.16",
 		"? voidcraft-planetary-compatibility >= 0.1.12"
 	],
