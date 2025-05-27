@@ -1,4 +1,10 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.0.2
+Date: 2025-05-26
+  Changes:
+    - Updated to use the latest version of Voidcraft
+    - Prismorphing (formerly Prismaticonversion) recipes added by this mod now have randomness added unless the Voidcraft setting disables it. If you're updating an existing save and don't want to have to completely rework all your Prismaticonversion setups, you'll probably want to enable that setting.
+---------------------------------------------------------------------------------------------------
 Version: 1.0.1
 Date: 2025-05-09
   Changes:

@@ -1,6 +1,6 @@
 {
 	"name": "voidcraft-qualitymaxxing",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"title": "Voidcraft: Quality Maxxing",
 	"author": "Mouseas",
 	"description": "Adds recipies to Voidcraft that makes it easier to produce quality materials.",
@@ -9,7 +9,7 @@
 		"base",
         "space-age",
 		"quality",
-		"Voidcraft >= 1.4.16",
+		"Voidcraft >= 2.0.0",
 		"? voidcraft-planetary-compatibility >= 0.1.12"
 	],
 	"space_travel_required": true,

@@ -1,3 +1,14 @@
+local morph_time = 4
+local void_flux_amount = 10
+local min_yield = 6
+local max_yield = 12
+local use_junk_products = true
+if (settings.startup["s6x-old-prismorphing"].value) then 
+	morph_time = 2
+	void_flux_amount = 2
+	use_junk_products = false
+end
+
 
 local function find_ref(name, category)
 	local result
@@ -20,7 +31,7 @@ local function calculate_recipe_tint(tinttbl)
 end
 
 local function prismite_oreconv(xinfo, order, tinttbl)
-	-- copied wholesale from voidcraft.prototypes.prismite-oreconv
+	-- adapted from voidcraft.prototypes.prismite-oreconv
 	local recipe_tint = calculate_recipe_tint(tinttbl)
 	
 	if not xinfo then xinfo = {} end
@@ -35,14 +46,14 @@ local function prismite_oreconv(xinfo, order, tinttbl)
 	
 	-- resolve the fluid ingredient
 	if not xinfo.fluid_ingr then
-		xinfo.fluid_ingr = {type="fluid", name="void-flux", amount=2}
+		xinfo.fluid_ingr = {type="fluid", name="void-flux", amount=void_flux_amount}
 	elseif type(xinfo.fluid_ingr) ~= "table" then
-		xinfo.fluid_ingr = {type="fluid", name=xinfo.fluid_ingr, amount=2}
+		xinfo.fluid_ingr = {type="fluid", name=xinfo.fluid_ingr, amount=void_flux_amount}
 	end
 	
 	-- resolve product to table, find its reference
 	if type(xinfo.product) ~= "table" then
-		xinfo.product = {type="item", name=xinfo.product, amount_min=6, amount_max=12}
+		xinfo.product = {type="item", name=xinfo.product, amount_min=min_yield, amount_max=max_yield}
 	end
 	local product_ref = find_ref(xinfo.product.name)
 	local resultset = { xinfo.product }
@@ -81,7 +92,60 @@ local function prismite_oreconv(xinfo, order, tinttbl)
 		if type(xinfo.byproduct) ~= "table" then
 			xinfo.byproduct = {type="item", name=xinfo.byproduct, amount=1}
 		end
+		if (use_junk_products and xinfo.byproduct.is_desirable and not xinfo.byproduct.probability) then
+			-- undesirable by products will always be given, but desirable ones should be affected by junk chances
+			xinfo.byproduct.probability = 0.85
+		end
 		table.insert(resultset, xinfo.byproduct)
+	end
+	
+	-- are there junk products?
+	if (use_junk_products) then
+		if not xinfo.junk_products then 
+			-- no junk products, so it'll only make void shards as junk.
+			xinfo.junk_products = {}
+		elseif type(xinfo.junk_products) == "string" then
+			-- only an item name was provided
+			xinfo.junk_products = { {type="item", name=xinfo.junk_products, amount_min=min_yield, amount_max=max_yield, probability=0.14 } }
+		elseif type(xinfo.junk_products) == "table" and xinfo.junk_products.type then
+			-- only one was provided, but we need it to be an array
+			xinfo.junk_products = { xinfo.junk_products }
+		elseif type(xinfo.junk_products) == "table" and type(xinfo.junk_products[1]) == "string" then
+			-- an array of item names was provided, add each as a full product entry, and split the 14% chance between them.
+			local junk_count = 0
+			local temp_products = {}
+			for k, v in pairs(xinfo.junk_products) do
+				junk_count = junk_count + 1
+				table.insert(temp_products, {type="item", name=v, amount_min=min_yield, amount_max=max_yield})
+			end
+			for k, v in pairs(temp_products) do
+				v.probability = 0.14 / junk_count
+			end
+			xinfo.junk_products = temp_products
+		end
+		
+		-- add probabilities if they weren't already specified.
+		for k, v in pairs(xinfo.junk_products) do
+			if not v.probability then v.probability = 0.14 / #xinfo.junk_products end
+		end
+		
+		-- add void shard with 1% chance
+		table.insert(xinfo.junk_products, {type="item", name="void-crystal", amount=1, probability=0.01})
+		
+		-- add all the junk items to the recipe results, and figure out what's needed to get to 100%
+		local probability_sum = 0
+		for k, p in pairs(xinfo.junk_products) do
+			probability_sum = probability_sum + p.probability
+			table.insert(resultset, p)
+		end
+		
+		-- determine the probability of the main product
+		if probability_sum <= 0 or probability_sum >= 1 then
+			log("Warning, total product pobabilities for prismorphing " .. xinfo.product.name .. " junk byproducts were invalid, so we can't automatically calculate the main product's probability. Defaulting to 85%.")
+			resultset[1].probability = 0.85
+		else
+			resultset[1].probability = 1 - probability_sum
+		end
 	end
 	
 	-- completed recipe
@@ -89,7 +153,7 @@ local function prismite_oreconv(xinfo, order, tinttbl)
 		type = "recipe",
 		name = recipe_name,
 		localised_name = { "item-name." .. xinfo.product.name },
-		energy_required = xinfo.cost or 2,
+		energy_required = xinfo.cost or morph_time,
 		enabled = false,
 		category = xinfo.category or VOIDCRAFT.cryo_chemistry_category,
 		icons = iconset,
@@ -139,20 +203,20 @@ data:extend({
 })
 
 local added_recipes = {
-	prismite_oreconv({product="uranium-ore"}, "vf", {0.32, 0.86, 0.2}, {2, 4}),
-	prismite_oreconv({product="tungsten-ore", secondary_ingr="tungsten-plate", tech="s6x-void-vulcanus", subgroup="vulcanus-processes"}, "vq-aa", {0.38, 0.32, 0.58}),
-	prismite_oreconv({product="holmium-ore", secondary_ingr="holmium-plate", tech="s6x-void-fulgora", subgroup="fulgora-processes"}, "vq-ab", {0.68, 0.28, 0.375}),
-	prismite_oreconv({product={name="jellynut", type="item", amount_min=45, amount_max=55}, secondary_ingr="jellynut-seed", tech="s6x-void-gleba", subgroup="vc-qm-bio"}, "vq-ac", {0.75, 0.46, 0.6}),
-	prismite_oreconv({product={name="yumako", type="item", amount_min=45, amount_max=55}, secondary_ingr="yumako-seed", tech="s6x-void-gleba", subgroup="vc-qm-bio"}, "vq-ad", {0.8, 0.12, 0.25}),
-	prismite_oreconv({product="lithium", secondary_ingr="lithium-plate", tech="s6x-void-aquilo", subgroup="vc-qm-ores-minerals"}, "vq-ae", {0.66, 0.68, 0.58}), -- not really needed: lithium is made with holmium plates
-	prismite_oreconv({product="sulfur", tech="s6x-void-sulfur", subgroup="vc-qm-other"}, "vq-ba", {0.82, 0.8, 0.25}),
-	prismite_oreconv({product="calcite", tech="s6x-void-vulcanus", subgroup="vulcanus-processes"}, "vq-bb", {0.78, 0.74, 0.74}),
-	prismite_oreconv({product={name="raw-fish", type="item", amount=1}, secondary_ingr="spoilage", subgroup="vc-qm-bio"}, "vq-bc", {0.2, 1.0, 0.4}),
-	prismite_oreconv({product={name="biter-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5}, subgroup="vc-qm-bio", tech="s6x-void-biocrafting"}, "vq-bd", {0.78, 0.625, 0.48}),
-	prismite_oreconv({product={name="pentapod-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5}, subgroup="vc-qm-bio", tech="s6x-void-biocrafting"}, "vq-be", {0.5, 0.9, 0.52}),
-	prismite_oreconv({product={name="orichalcum", type="item", amount_min=2, amount_max=5}, main_ingr="prismite-crystal", secondary_ingr="orichalcum", tech="s6x-void-orichalcum"}, "vq-bf", {0.36, 0.52, 0.2}),
-	prismite_oreconv({product="solid-fuel", subgroup="vc-qm-other"}, "vq-bf", {0.5, 0.5, 0.5}),
-	prismite_oreconv({product="ice", subgroup="vc-qm-other"}, "vq-bg", {0.62, 0.62, 0.8}),
+	prismite_oreconv({product="uranium-ore", junk_products="uranium-238"}, "vf", {0.32, 0.86, 0.2}, {2, 4}),
+	prismite_oreconv({product="tungsten-ore", secondary_ingr="tungsten-plate", junk_products="stone", tech="s6x-void-vulcanus", subgroup="vulcanus-processes"}, "vq-aa", {0.38, 0.32, 0.58}),
+	prismite_oreconv({product="holmium-ore", secondary_ingr="holmium-plate", junk_products="stone", tech="s6x-void-fulgora", subgroup="fulgora-processes"}, "vq-ab", {0.68, 0.28, 0.375}),
+	prismite_oreconv({product={name="jellynut", type="item", amount_min=45, amount_max=55}, secondary_ingr="jellynut-seed", junk_products="spoilage", tech="s6x-void-gleba", subgroup="vc-qm-bio"}, "vq-ac", {0.75, 0.46, 0.6}),
+	prismite_oreconv({product={name="yumako", type="item", amount_min=45, amount_max=55}, secondary_ingr="yumako-seed", junk_products="spoilage", tech="s6x-void-gleba", subgroup="vc-qm-bio"}, "vq-ad", {0.8, 0.12, 0.25}),
+	prismite_oreconv({product="lithium", secondary_ingr="lithium-plate", junk_products="holmium-ore", tech="s6x-void-aquilo", subgroup="vc-qm-ores-minerals"}, "vq-ae", {0.66, 0.68, 0.58}), -- not really needed: lithium is made with holmium plates
+	prismite_oreconv({product="sulfur", junk_products="spoilage", tech="s6x-void-sulfur", subgroup="vc-qm-other"}, "vq-ba", {0.82, 0.8, 0.25}),
+	prismite_oreconv({product="calcite", junk_products="stone", tech="s6x-void-vulcanus", subgroup="vulcanus-processes"}, "vq-bb", {0.78, 0.74, 0.74}),
+	prismite_oreconv({product={name="raw-fish", type="item", amount=1}, secondary_ingr="spoilage", junk_products={type="item", name="spoilage", amount=1}, subgroup="vc-qm-bio"}, "vq-bc", {0.2, 1.0, 0.4}),
+	prismite_oreconv({product={name="biter-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5}, junk_products={type="item", name="spoilage", amount_min=3, amount_max=6}, subgroup="vc-qm-bio", tech="s6x-void-biocrafting"}, "vq-bd", {0.78, 0.625, 0.48}),
+	prismite_oreconv({product={name="pentapod-egg", type="item", amount_min=3, amount_max=6}, main_ingr={type="item", name="orichalcum", amount=5}, junk_products={type="item", name="spoilage", amount_min=3, amount_max=6}, subgroup="vc-qm-bio", tech="s6x-void-biocrafting"}, "vq-be", {0.5, 0.9, 0.52}),
+	prismite_oreconv({product={name="orichalcum", type="item", amount_min=2, amount_max=5}, main_ingr="prismite-crystal", secondary_ingr="orichalcum", junk_products={type="item", name="prismite-crystal", amount_min=2, amount_max=5}, tech="s6x-void-orichalcum"}, "vq-bf", {0.36, 0.52, 0.2}),
+	prismite_oreconv({product="solid-fuel", subgroup="vc-qm-other", junk_products="void-fuel"}, "vq-bf", {0.5, 0.5, 0.5}),
+	prismite_oreconv({product="ice", junk_products={type="fluid", name="water", amount=100}, subgroup="vc-qm-other"}, "vq-bg", {0.62, 0.62, 0.8}),
 }
 
 -- recipe to make promethium chunks. To get more out than you put in, you'll need productivity bonuses.
@@ -173,7 +237,8 @@ if not (mods["VoidBlock"] and settings.startup["s6x-location-unlock"].value) the
 end
 table.insert(added_recipes, promethium_chunk_recipe)
 
--- recipe to make void rocket parts
+-- recipe to make void rocket parts 
+--[[ deprecated; voidcraft added this directly.
 table.insert(added_recipes, {
 	type = "recipe",
 	name = "mouseas-void-rocket-part",
@@ -205,6 +270,7 @@ table.insert(added_recipes, {
 	crafting_machine_tint = calculate_recipe_tint({0.8, 0.3, 0.85}),
 })
 table.insert(data.raw.technology["s6x-void-rocket"].effects, { type = "unlock-recipe", recipe = "mouseas-void-rocket-part" })
+]]
 
 -- recipe to make holmium plates from ore
 table.insert(added_recipes, {
@@ -244,26 +310,30 @@ table.insert(data.raw.technology["s6x-void-fulgora"].effects, { type = "unlock-r
 -- cross-mod compatibility
 if mods["voidcraft-planetary-compatibility"] then
 	if mods["maraxsis"] then
-		table.insert(added_recipes, prismite_oreconv({product="sand", tech="mouseas-void-maraxsis", subgroup="vc-qm-ores-minerals"}, "vq-mar-a", {0.78, 0.74, 0.74}))
-		table.insert(added_recipes, prismite_oreconv({product="limestone", tech="mouseas-void-maraxsis", subgroup="vc-qm-ores-minerals"}, "vq-mar-b", {1.0, 0.9, 0.7}))
-		table.insert(added_recipes, prismite_oreconv({product="maraxsis-coral", tech="mouseas-void-maraxsis", subgroup="vc-qm-bio"}, "vq-mar-c", {0.2, 0.61, 0.5}))
-		table.insert(added_recipes, prismite_oreconv({product="maraxsis-tropical-fish", tech="mouseas-void-maraxsis", subgroup="vc-qm-bio"}, "vq-mar-a", {0.92, 0.35, 0.1}))
-		table.insert(added_recipes, prismite_oreconv({product="salt", tech="mouseas-void-salt", subgroup="vc-qm-ores-minerals"}, "vq-mar-d", {0.78, 0.74, 0.74}))
+		table.insert(added_recipes, prismite_oreconv({product="sand", junk_products="stone", tech="mouseas-void-maraxsis", subgroup="vc-qm-ores-minerals"}, "vq-mar-a", {0.78, 0.74, 0.74}))
+		table.insert(added_recipes, prismite_oreconv({product="limestone", junk_products="maraxsis-coral", tech="mouseas-void-maraxsis", subgroup="vc-qm-ores-minerals"}, "vq-mar-b", {1.0, 0.9, 0.7}))
+		table.insert(added_recipes, prismite_oreconv({product="maraxsis-coral", junk_products="limestone", tech="mouseas-void-maraxsis", subgroup="vc-qm-bio"}, "vq-mar-c", {0.2, 0.61, 0.5}))
+		table.insert(added_recipes, prismite_oreconv({product="maraxsis-tropical-fish", junk_products="maraxsis-coral", tech="mouseas-void-maraxsis", subgroup="vc-qm-bio"}, "vq-mar-a", {0.92, 0.35, 0.1}))
+		table.insert(added_recipes, prismite_oreconv({product="salt", junk_products="sand", tech="mouseas-void-salt", subgroup="vc-qm-ores-minerals"}, "vq-mar-d", {0.78, 0.74, 0.74}))
 	end
 	
 	if mods["castra"] then
-		table.insert(added_recipes, prismite_oreconv({product="gunpowder", tech="mouseas-void-castra", subgroup="vc-qm-other"}, "vq-cas-a", {0.1, 0.1, 0.1}))
-		table.insert(added_recipes, prismite_oreconv({product="millerite", tech="mouseas-void-castra", subgroup="vc-qm-ores-minerals"}, "vq-cas-b", {0.9, 0.8, 0.25}))
-		table.insert(added_recipes, prismite_oreconv({product="castra-data", secondary_ingr="uranium-ore", tech="mouseas-void-castra", subgroup="vc-qm-other"}, "vq-cas-c", {0.4, 0.2, 0.1}))
+		table.insert(added_recipes, prismite_oreconv({product="gunpowder", junk_products="carbon", tech="mouseas-void-castra", subgroup="vc-qm-other"}, "vq-cas-a", {0.1, 0.1, 0.1}))
+		table.insert(added_recipes, prismite_oreconv({product="millerite", junk_products={"iron-ore", "copper-ore"}, tech="mouseas-void-castra", subgroup="vc-qm-ores-minerals"}, "vq-cas-b", {0.9, 0.8, 0.25}))
+		table.insert(added_recipes, prismite_oreconv({product="castra-data", junk_products={"uranium-ore", "gunpowder"}, secondary_ingr="uranium-ore", tech="mouseas-void-castra", subgroup="vc-qm-other"}, "vq-cas-c", {0.4, 0.2, 0.1}))
 	end
 	
 	if mods["tenebris-prime"] then
-		table.insert(added_recipes, prismite_oreconv({product="tenecap", tech="mouseas-void-tenebris-prime", subgroup="vc-qm-bio"}, "vq-tp-a", {0.7, 0.45, 0.3}))
-		table.insert(added_recipes, prismite_oreconv({product="lucifunnel", tech="mouseas-void-tenebris-prime", subgroup="vc-qm-bio"}, "vq-tp-b", {0.4, 0.8, 0.7}))
-		table.insert(added_recipes, prismite_oreconv({product="quartz-ore", tech="mouseas-void-tenebris-prime", subgroup="vc-qm-ores-minerals"}, "vq-tp-c", {0.95, 0.9, 0.9}))
+		table.insert(added_recipes, prismite_oreconv({product="tenecap", junk_products="tenecap-spore", tech="mouseas-void-tenebris-prime", subgroup="vc-qm-bio"}, "vq-tp-a", {0.7, 0.45, 0.3}))
+		table.insert(added_recipes, prismite_oreconv({product="lucifunnel", junk_products="luciferin", tech="mouseas-void-tenebris-prime", subgroup="vc-qm-bio"}, "vq-tp-b", {0.4, 0.8, 0.7}))
+		table.insert(added_recipes, prismite_oreconv({product="quartz-ore", junk_products="stone", tech="mouseas-void-tenebris-prime", subgroup="vc-qm-ores-minerals"}, "vq-tp-c", {0.95, 0.9, 0.9}))
 	end
 	
 	if mods["metal-and-stars"] then
+		local gold_ore_junk = "silica-sand"
+		if mods["secretas"] then
+			gold_ore_junk = "copper-ore"
+		end
 		data:extend({
 			{
 				type = "item-subgroup",
@@ -273,7 +343,7 @@ if mods["voidcraft-planetary-compatibility"] then
 			},
 		})
 		-- shipyard
-		table.insert(added_recipes, prismite_oreconv({product={type="item", name="nanites", amount_min=12, amount_max=24}, tech="mouseas-void-mas-shipyard", subgroup="vc-ip-mas"}, "vq-mas-sy-a", {0.92, 0.92, 0.92}))
+		table.insert(added_recipes, prismite_oreconv({product={type="item", name="nanites", amount_min=12, amount_max=24}, junk_products="iron-ore", tech="mouseas-void-mas-shipyard", subgroup="vc-ip-mas"}, "vq-mas-sy-a", {0.92, 0.92, 0.92}))
 		-- nix
 		table.insert(added_recipes, prismite_oreconv({
 			product="dark-matter-chunk", 
@@ -284,12 +354,12 @@ if mods["voidcraft-planetary-compatibility"] then
 			subgroup="vc-ip-mas"
 		}, "vq-mas-n-a", {0.38, 0.32, 0.58}))
 		-- ringworld
-		table.insert(added_recipes, prismite_oreconv({product="bitumen", tech="mouseas-void-mas-ringworld", subgroup="vc-ip-mas"}, "vq-mas-rw-a", {0.12, 0.1, 0.1}))
-		table.insert(added_recipes, prismite_oreconv({product="gold-ore", tech="mouseas-void-mas-ringworld", subgroup="vc-ip-mas"}, "vq-mas-rw-b", {0.9, 0.8, 0.0}))
-		table.insert(added_recipes, prismite_oreconv({product="silica-sand", tech="mouseas-void-mas-ringworld", subgroup="vc-ip-mas"}, "vq-mas-rw-c", {0.8, 0.7, 0.7}))
+		table.insert(added_recipes, prismite_oreconv({product="bitumen", junk_products="bone-fragments", tech="mouseas-void-mas-ringworld", subgroup="vc-ip-mas"}, "vq-mas-rw-a", {0.12, 0.1, 0.1}))
+		table.insert(added_recipes, prismite_oreconv({product="gold-ore", junk_products=gold_ore_junk, tech="mouseas-void-mas-ringworld", subgroup="vc-ip-mas"}, "vq-mas-rw-b", {0.9, 0.8, 0.0}))
+		table.insert(added_recipes, prismite_oreconv({product="silica-sand", junk_products="stone", tech="mouseas-void-mas-ringworld", subgroup="vc-ip-mas"}, "vq-mas-rw-c", {0.8, 0.7, 0.7}))
 		--mirandus
-		table.insert(added_recipes, prismite_oreconv({product="neodymium-ore", tech="mouseas-void-mas-mirandus", subgroup="vc-ip-mas"}, "vq-mas-m-a", {0.92, 0.92, 0.92}))
-		table.insert(added_recipes, prismite_oreconv({product="thorium", tech="mouseas-void-mas-mirandus", subgroup="vc-ip-mas"}, "vq-mas-m-b", {0.57, 0.7, 0.35}))
+		table.insert(added_recipes, prismite_oreconv({product="neodymium-ore", junk_products="lithium", tech="mouseas-void-mas-mirandus", subgroup="vc-ip-mas"}, "vq-mas-m-a", {0.92, 0.92, 0.92}))
+		table.insert(added_recipes, prismite_oreconv({product="thorium", junk_products="uranium-238", tech="mouseas-void-mas-mirandus", subgroup="vc-ip-mas"}, "vq-mas-m-b", {0.57, 0.7, 0.35}))
 	end
 	
 	if mods["Moshine"] then
@@ -297,9 +367,9 @@ if mods["voidcraft-planetary-compatibility"] then
 		if mods["maraxsis"] then
 			table.insert(data.raw.technology["mouseas-void-moshine"].effects, { type = "unlock-recipe", recipe = "mouseas-prismiteconv-sand" })
 		else
-			table.insert(added_recipes, prismite_oreconv({product="sand", tech="mouseas-void-moshine", subgroup="vc-qm-ores-minerals"}, "vq-mos-a", {0.78, 0.74, 0.74}))
+			table.insert(added_recipes, prismite_oreconv({product="sand", junk_products="stone", tech="mouseas-void-moshine", subgroup="vc-qm-ores-minerals"}, "vq-mos-a", {0.78, 0.74, 0.74}))
 		end
-		table.insert(added_recipes, prismite_oreconv({product="neodymium", tech="mouseas-void-moshine", subgroup="vc-qm-ores-minerals"}, "vq-mos-b", {0.9, 0.9, 0.9}))
+		table.insert(added_recipes, prismite_oreconv({product="neodymium", junk_products="iron-ore", tech="mouseas-void-moshine", subgroup="vc-qm-ores-minerals"}, "vq-mos-b", {0.9, 0.9, 0.9}))
 	end
 	
 	if mods["secretas"] then
@@ -307,7 +377,7 @@ if mods["voidcraft-planetary-compatibility"] then
 		if mods["metal-and-stars"] then
 			table.insert(data.raw.technology["mouseas-void-frozeta"].effects, { type="unlock-recipe", recipe="mouseas-prismiteconv-gold-ore"})
 		else
-			table.insert(added_recipes, prismite_oreconv({product="gold-ore", tech="mouseas-void-frozeta", subgroup="vc-qm-ores-minerals"}, "vq-sec-a", {0.9, 0.8, 0.0}))
+			table.insert(added_recipes, prismite_oreconv({product="gold-ore", junk_products="copper-ore", tech="mouseas-void-frozeta", subgroup="vc-qm-ores-minerals"}, "vq-sec-a", {0.9, 0.8, 0.0}))
 		end
 	end
 	
